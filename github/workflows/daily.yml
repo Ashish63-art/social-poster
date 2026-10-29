@@ -1,0 +1,34 @@
+
+name: Daily Post
+
+on:
+  schedule:
+    - cron: "30 4 * * *"      # 04:30 UTC = 10:00 AM IST
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Which platforms to post to (use this to retry just one)"
+        default: "instagram,linkedin"
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests pynacl
+
+      - run: python post.py
+        env:
+          PLATFORMS: ${{ github.event.inputs.platforms || 'instagram,linkedin' }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          LI_TOKEN: ${{ secrets.LI_TOKEN }}
+          LI_PERSON_ID: ${{ secrets.LI_PERSON_ID }}
+          LI_CLIENT_ID: ${{ secrets.LI_CLIENT_ID }}
+          LI_CLIENT_SECRET: ${{ secrets.LI_CLIENT_SECRET }}
+          GH_PAT: ${{ secrets.GH_PAT }}
